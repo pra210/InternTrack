@@ -1,0 +1,60 @@
+{% extends "companies/base.html" %}
+
+{% block title %}Applicants · {{ internship.title }} | InternTrack{% endblock %}
+
+{% block company_content %}
+<div class="company-page-heading">
+    <div><span class="eyebrow eyebrow-blue">Candidate pipeline</span><h1>Applicants for {{ internship.title }}</h1><p>{{ internship.company.company_name }} · {{ internship.get_status_display }}</p></div>
+    <a class="button button-outline" href="{% url 'companies:internship_list' %}">Back to postings</a>
+</div>
+<section class="company-panel">
+    <form method="get" class="platform-filter-form applicant-filter-form">
+        <label>
+            <span>Search candidates</span>
+            <input type="search" name="q" value="{{ query }}" placeholder="Name, email or username">
+        </label>
+        <label>
+            <span>Application status</span>
+            <select name="status">
+                <option value="">All statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}"{% if status_filter == value %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <div class="platform-filter-actions">
+            <button class="button button-primary button-small" type="submit">Filter applicants</button>
+            <a class="button button-outline button-small" href="{% url 'companies:internship_applicants' internship.pk %}">Clear</a>
+        </div>
+    </form>
+    {% if applications %}
+        <div class="company-table-wrap">
+            <table class="company-table">
+                <thead><tr><th>Candidate</th><th>Skills</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                    {% for application in applications %}
+                        <tr>
+                            <td><strong>{{ application.student.full_name }}</strong><small>{{ application.student.user.email }}</small></td>
+                            <td>{% for skill in application.student.skills.all %}<span class="skill-chip">{{ skill.name }}</span>{% empty %}<small>No skills listed</small>{% endfor %}</td>
+                            <td>{{ application.applied_date|date:"M j, Y" }}</td>
+                            <td><span class="status-badge status-{{ application.status|lower }}">{{ application.get_status_display }}</span></td>
+                            <td><a class="table-link" href="{% url 'companies:application_detail' application.pk %}">View candidate</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="company-empty-state"><h3>No matching applications</h3><p>Try changing your search or filters. Applications will show here when students apply.</p></div>
+    {% endif %}
+    {% if page.has_other_pages %}
+        <nav class="platform-pagination" aria-label="Applicant pages">
+            <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+            <div>
+                {% if page.has_previous %}<a class="button button-outline button-small" href="?q={{ query|urlencode }}{% if status_filter %}&status={{ status_filter }}{% endif %}&page={{ page.previous_page_number }}">Previous</a>{% endif %}
+                {% if page.has_next %}<a class="button button-outline button-small" href="?q={{ query|urlencode }}{% if status_filter %}&status={{ status_filter }}{% endif %}&page={{ page.next_page_number }}">Next</a>{% endif %}
+            </div>
+        </nav>
+    {% endif %}
+</section>
+{% endblock %}

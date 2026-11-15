@@ -1,0 +1,30 @@
+<footer class="site-footer">
+    <div class="container footer-main">
+        <div class="footer-brand-block">
+            <a class="brand brand-footer" href="{% url 'home' %}">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" fill="none">
+                        <path d="M7 23.5V8.5h4.2l9.6 9.8V8.5H25v15h-4.1l-9.7-9.9v9.9H7Z" fill="currentColor"/>
+                        <circle cx="24.8" cy="7.2" r="3.2" fill="#A78BFA"/>
+                    </svg>
+                </span>
+                <span>intern<span class="brand-accent">track</span></span>
+            </a>
+            <p>A clearer path from what you learn to what you do next.</p>
+        </div>
+        <div class="footer-links">
+            <span class="footer-heading">Explore</span>
+            <a href="{% url 'home' %}#opportunities">Find internships</a>
+            <a href="{% url 'home' %}#how-it-works">How it works</a>
+        </div>
+        <div class="footer-links">
+            <span class="footer-heading">For teams</span>
+            <a href="{% url 'home' %}#for-companies">Hire emerging talent</a>
+            <a href="{% url 'home' %}#benefits">Why InternTrack</a>
+        </div>
+    </div>
+    <div class="container footer-bottom">
+        <span>© {% now "Y" %} InternTrack</span>
+        <span>Built for the next generation of work.</span>
+    </div>
+</footer>

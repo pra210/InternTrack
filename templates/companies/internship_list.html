@@ -1,0 +1,36 @@
+{% extends "companies/base.html" %}
+
+{% block title %}Internship Postings | InternTrack{% endblock %}
+
+{% block company_content %}
+<div class="company-page-heading">
+    <div><span class="eyebrow eyebrow-blue">Hiring</span><h1>Your internship postings</h1><p>Manage your opportunities and review incoming applications.</p></div>
+    <a class="button button-primary" href="{% url 'companies:internship_create' %}">Create internship <span aria-hidden="true">+</span></a>
+</div>
+<section class="company-panel">
+    {% if internships %}
+        <div class="company-table-wrap">
+            <table class="company-table">
+                <thead><tr><th>Role</th><th>Status</th><th>Deadline</th><th>Applicants</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for internship in internships %}
+                        <tr>
+                            <td><strong>{{ internship.title }}</strong><small>{{ internship.location }} · {{ internship.duration }}</small></td>
+                            <td><span class="status-badge status-{{ internship.status|lower }}">{{ internship.get_status_display }}</span></td>
+                            <td>{{ internship.deadline|date:"M j, Y" }}</td>
+                            <td>{{ internship.applicant_count }}</td>
+                            <td class="table-actions">
+                                <a class="table-link" href="{% url 'companies:internship_applicants' internship.pk %}">Applicants</a>
+                                <a class="table-link" href="{% url 'companies:internship_edit' internship.pk %}">Edit</a>
+                                <a class="table-link table-link-danger" href="{% url 'companies:internship_delete' internship.pk %}">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="company-empty-state"><span class="empty-state-symbol" aria-hidden="true">+</span><h3>No internships posted yet</h3><p>Publish a real opportunity to start building your candidate pipeline.</p><a class="button button-primary button-small" href="{% url 'companies:internship_create' %}">Create internship</a></div>
+    {% endif %}
+</section>
+{% endblock %}

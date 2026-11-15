@@ -1,0 +1,50 @@
+{% load static %}
+<header class="site-header">
+    <div class="container nav-shell">
+        <a class="brand" href="{% url 'home' %}" aria-label="InternTrack home">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" fill="none">
+                    <path d="M7 23.5V8.5h4.2l9.6 9.8V8.5H25v15h-4.1l-9.7-9.9v9.9H7Z" fill="currentColor"/>
+                    <circle cx="24.8" cy="7.2" r="3.2" fill="#8B5CF6"/>
+                </svg>
+            </span>
+            <span>intern<span class="brand-accent">track</span></span>
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" aria-label="Open navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <nav class="primary-nav" id="primary-navigation" aria-label="Main navigation">
+            <a href="{% url 'home' %}#opportunities">Find internships</a>
+            <a href="{% url 'home' %}#how-it-works">How it works</a>
+            <a href="{% url 'home' %}#for-companies">For companies</a>
+            {% if user.is_authenticated %}
+                {% if user.is_staff %}
+                    <a href="{% url 'platform_admin:dashboard' %}">Platform admin</a>
+                    <form method="post" action="{% url 'platform_admin:logout' %}" class="nav-logout-form">
+                        {% csrf_token %}
+                        <button class="button button-small button-primary nav-cta" type="submit">Log out</button>
+                    </form>
+                {% elif user.role == "COMPANY" %}
+                    <a href="{% url 'companies:dashboard' %}">Recruiter dashboard</a>
+                    <a href="{% url 'companies:profile' %}">Company profile</a>
+                    <form method="post" action="{% url 'companies:logout' %}" class="nav-logout-form">
+                        {% csrf_token %}
+                        <button class="button button-small button-primary nav-cta" type="submit">Log out</button>
+                    </form>
+                {% elif user.role == "STUDENT" %}
+                    <a href="{% url 'dashboard:student_dashboard' %}">Dashboard</a>
+                    <a href="{% url 'students:profile' %}">Profile</a>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="nav-logout-form">
+                        {% csrf_token %}
+                        <button class="button button-small button-primary nav-cta" type="submit">Log out</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'accounts:login' %}">Log in</a>
+                <a class="button button-small button-primary nav-cta" href="{% url 'accounts:register' %}">Create account</a>
+                <a href="{% url 'companies:login' %}">Recruiter login</a>
+                <a href="{% url 'companies:register' %}">Company registration</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>

@@ -1,0 +1,50 @@
+{% extends "platform_admin/base.html" %}
+
+{% block title %}Platform overview | InternTrack{% endblock %}
+
+{% block platform_content %}
+<header class="platform-page-heading">
+    <div>
+        <span class="eyebrow eyebrow-blue">Platform overview</span>
+        <h1>Good to see you, {{ request.user.get_short_name|default:request.user.username }}.</h1>
+        <p>Monitor platform activity and manage the InternTrack community.</p>
+    </div>
+</header>
+
+<section class="platform-stat-grid" aria-label="Platform statistics">
+    <a class="platform-stat-card" href="{% url 'platform_admin:students' %}">
+        <span>Total students</span><strong>{{ total_students }}</strong><small>Student accounts</small>
+    </a>
+    <a class="platform-stat-card" href="{% url 'platform_admin:companies' %}">
+        <span>Total companies</span><strong>{{ total_companies }}</strong><small>Recruiter profiles</small>
+    </a>
+    <a class="platform-stat-card" href="{% url 'platform_admin:internships' %}">
+        <span>Total internships</span><strong>{{ total_internships }}</strong><small>All posting statuses</small>
+    </a>
+    <a class="platform-stat-card" href="{% url 'platform_admin:applications' %}">
+        <span>Total applications</span><strong>{{ total_applications }}</strong><small>Submitted platform-wide</small>
+    </a>
+    <a class="platform-stat-card" href="{% url 'platform_admin:applications' %}?status=PENDING">
+        <span>Pending applications</span><strong>{{ pending_applications }}</strong><small>Awaiting recruiter review</small>
+    </a>
+</section>
+
+<section class="platform-panel">
+    <div class="platform-panel-heading">
+        <div><h2>Recent platform activity</h2><p>Latest applications, status updates, postings, and interviews.</p></div>
+    </div>
+    {% if recent_activities %}
+        <ol class="platform-activity-list">
+            {% for activity in recent_activities %}
+                <li>
+                    <span class="platform-activity-dot" aria-hidden="true"></span>
+                    <div><strong>{{ activity.title }}</strong><p>{{ activity.description }}</p></div>
+                    <time datetime="{{ activity.created_at|date:'c' }}">{{ activity.created_at|date:"M j, Y · g:i A" }}</time>
+                </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <p class="platform-empty-state">Platform activity will appear here as students and recruiters use InternTrack.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "companies/base.html" %}
+
+{% block title %}Candidate Profile | InternTrack{% endblock %}
+
+{% block company_content %}
+<div class="company-page-heading">
+    <div><span class="eyebrow eyebrow-blue">Candidate review</span><h1>{{ student.full_name }}</h1><p>Application for {{ application.internship.title }}</p></div>
+    <a class="button button-outline" href="{% url 'companies:internship_applicants' application.internship_id %}">Back to applicants</a>
+</div>
+<div class="candidate-grid">
+    <section class="company-panel">
+        <div class="company-panel-heading"><div><h2>Student profile</h2><p>Information shared by the applicant.</p></div></div>
+        <dl class="company-details">
+            <div><dt>Email</dt><dd>{{ student.user.email }}</dd></div>
+            <div><dt>Phone</dt><dd>{{ student.phone|default:"Not provided" }}</dd></div>
+            <div><dt>College</dt><dd>{{ student.college|default:"Not provided" }}</dd></div>
+            <div><dt>Degree</dt><dd>{{ student.degree|default:"Not provided" }}</dd></div>
+            <div><dt>Department</dt><dd>{{ student.department|default:"Not provided" }}</dd></div>
+            <div><dt>Graduation year</dt><dd>{{ student.graduation_year|default:"Not provided" }}</dd></div>
+            <div class="company-detail-wide"><dt>Skills</dt><dd>{% for skill in student.skills.all %}<span class="skill-chip">{{ skill.name }}</span>{% empty %}No skills listed{% endfor %}</dd></div>
+            <div class="company-detail-wide"><dt>Cover letter</dt><dd>{{ application.cover_letter|default:"No cover letter was provided."|linebreaksbr }}</dd></div>
+        </dl>
+        {% if student.resume %}
+            <a class="button button-primary" href="{% url 'companies:application_resume' application.pk %}">Download resume</a>
+        {% else %}
+            <p class="muted-note">This candidate has not uploaded a resume.</p>
+        {% endif %}
+    </section>
+    <section class="company-panel">
+        <div class="company-panel-heading"><div><h2>Application status</h2><p>Applied {{ application.applied_date|date:"M j, Y" }} · Current: {{ application.get_status_display }}</p></div></div>
+        <form method="post" action="{% url 'companies:application_status_update' application.pk %}" class="auth-form company-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="button button-primary" type="submit">Update status</button>
+        </form>
+        <div class="candidate-history">
+            <h3>Application history</h3>
+            <ol>
+                {% for event in status_history %}
+                    <li><span>{{ event.get_status_display }}</span><small>{{ event.created_at|date:"M j, Y · g:i A" }}</small></li>
+                {% empty %}
+                    <li><span>Application received</span><small>{{ application.applied_date|date:"M j, Y · g:i A" }}</small></li>
+                {% endfor %}
+            </ol>
+        </div>
+    </section>
+    <section class="company-panel interview-management-panel">
+        <div class="company-panel-heading"><div><h2>Interview schedule</h2><p>Schedule or reschedule a conversation with this candidate.</p></div></div>
+        {% if interview %}
+            <dl class="company-details interview-summary">
+                <div><dt>Date and time</dt><dd>{{ interview.scheduled_at|date:"M j, Y · g:i A" }}</dd></div>
+                <div><dt>Mode</dt><dd>{{ interview.get_mode_display }}</dd></div>
+                {% if interview.meeting_link %}<div><dt>Meeting link</dt><dd><a class="table-link" href="{{ interview.meeting_link }}" target="_blank" rel="noopener noreferrer">Open meeting</a></dd></div>{% endif %}
+                {% if interview.location %}<div><dt>Location</dt><dd>{{ interview.location }}</dd></div>{% endif %}
+                {% if interview.instructions %}<div class="company-detail-wide"><dt>Instructions</dt><dd>{{ interview.instructions|linebreaksbr }}</dd></div>{% endif %}
+            </dl>
+        {% endif %}
+        {% if application.status == "SHORTLISTED" or application.status == "REVIEWING" or application.status == "INTERVIEWING" %}
+            <form method="post" action="{% url 'companies:interview_schedule' application.pk %}" class="auth-form company-form">
+                {% csrf_token %}
+                {{ interview_form.as_p }}
+                <button class="button button-primary" type="submit">{% if interview %}Update interview{% else %}Schedule interview{% endif %}</button>
+            </form>
+        {% else %}
+            <p class="empty-state">Interview scheduling is available for shortlisted or interviewing candidates.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

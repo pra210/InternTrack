@@ -1,0 +1,9 @@
+{% extends "errors/base.html" %}
+
+{% block title %}Access denied | InternTrack{% endblock %}
+{% block error_content %}
+    <div class="code">403 · Access denied</div>
+    <h1>This page isn’t available to your account.</h1>
+    <p>You may need to sign in with an account that has permission to view this page.</p>
+    <a href="/">Return to InternTrack</a>
+{% endblock %}

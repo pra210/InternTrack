@@ -1,0 +1,30 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f8fafc">
+    <meta name="description" content="{% block meta_description %}Find internships, connect with employers, and manage your career journey with InternTrack.{% endblock %}">
+    <title>{% block title %}InternTrack — Make your next move{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    {% include "includes/header.html" %}
+    {% if messages %}
+        <div class="container message-stack">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    {% include "includes/footer.html" %}
+    <script src="{% static 'js/site.js' %}" defer></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

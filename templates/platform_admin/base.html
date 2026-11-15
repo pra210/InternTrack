@@ -1,0 +1,52 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f8fafc">
+    <title>{% block title %}Platform management | InternTrack{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+</head>
+<body class="platform-admin-body">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="platform-admin-topbar">
+        <a class="brand" href="{% url 'platform_admin:dashboard' %}">
+            <span class="brand-mark" aria-hidden="true">N</span>
+            <span>intern<span class="brand-accent">track</span></span>
+            <span class="admin-brand-label">Platform admin</span>
+        </a>
+        <div class="platform-admin-user">
+            <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+            <form method="post" action="{% url 'platform_admin:logout' %}">
+                {% csrf_token %}
+                <button class="button button-small button-outline" type="submit">Log out</button>
+            </form>
+        </div>
+    </header>
+    {% if messages %}
+        <div class="container message-stack">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <main id="main-content" class="platform-admin-layout">
+        <aside class="platform-admin-sidebar" aria-label="Platform management navigation">
+            <span class="platform-admin-sidebar-label">Manage platform</span>
+            <nav>
+                <a href="{% url 'platform_admin:dashboard' %}">Overview</a>
+                <a href="{% url 'platform_admin:students' %}">Students</a>
+                <a href="{% url 'platform_admin:companies' %}">Companies</a>
+                <a href="{% url 'platform_admin:internships' %}">Internships</a>
+                <a href="{% url 'platform_admin:applications' %}">Applications</a>
+            </nav>
+            <a class="platform-admin-public-link" href="{% url 'home' %}">View public site</a>
+        </aside>
+        <section class="platform-admin-main">
+            {% block platform_content %}{% endblock %}
+        </section>
+    </main>
+    <script src="{% static 'js/site.js' %}" defer></script>
+</body>
+</html>

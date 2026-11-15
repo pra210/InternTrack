@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}{{ internship.title }} | InternTrack{% endblock %}
+{% block meta_description %}Learn about the {{ internship.title }} internship at {{ internship.company.company_name }} and apply on InternTrack.{% endblock %}
+
+{% block content %}
+<section class="page-section internship-detail-page">
+    <div class="container internship-detail-shell">
+        <a class="text-link" href="{% url 'home' %}#search-results">← Back to internships</a>
+
+        <article class="internship-detail-card">
+            <header class="internship-detail-header">
+                <div class="detail-company-mark" aria-hidden="true">{{ internship.company.company_name|first|upper }}</div>
+                <div class="detail-heading-copy">
+                    <span class="eyebrow eyebrow-blue">{{ internship.company.company_name }}</span>
+                    <h1>{{ internship.title }}</h1>
+                    <p class="detail-company-location">{{ internship.company.location|default:internship.location }}</p>
+                </div>
+                <span class="status-badge status-{{ internship.status|lower }}">{{ internship.get_status_display }}</span>
+            </header>
+
+            <div class="internship-detail-layout">
+                <div class="internship-detail-main">
+                    <section class="detail-section">
+                        <h2>About this internship</h2>
+                        <div class="detail-description">{{ internship.description|linebreaksbr }}</div>
+                    </section>
+
+                    <section class="detail-section">
+                        <h2>Skills you’ll use</h2>
+                        {% if internship.required_skills.all %}
+                            <div class="detail-skills">
+                                {% for skill in internship.required_skills.all %}
+                                    <span class="skill-chip">{{ skill.name }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="muted-note">No specific skills have been listed.</p>
+                        {% endif %}
+                    </section>
+
+                    <section class="detail-section detail-company-section">
+                        <h2>About {{ internship.company.company_name }}</h2>
+                        <p>{{ internship.company.description|default:"This company has not added a profile description yet."|linebreaksbr }}</p>
+                        {% if internship.company.website %}
+                            <a class="text-link" href="{{ internship.company.website }}" target="_blank" rel="noopener noreferrer">Visit company website <span aria-hidden="true">↗</span></a>
+                        {% endif %}
+                    </section>
+                </div>
+
+                <aside class="internship-facts-card" aria-label="Internship details">
+                    <h2>Role details</h2>
+                    <dl class="internship-facts">
+                        <div><dt>Location</dt><dd>{{ internship.location }}</dd></div>
+                        <div><dt>Duration</dt><dd>{{ internship.duration }}</dd></div>
+                        <div><dt>Monthly stipend</dt><dd>{% if internship.stipend %}₹{{ internship.stipend|floatformat:0 }}{% else %}Not specified{% endif %}</dd></div>
+                        <div><dt>Application deadline</dt><dd>{{ internship.deadline|date:"M j, Y" }}</dd></div>
+                        <div><dt>Status</dt><dd>{{ internship.get_status_display }}</dd></div>
+                    </dl>
+
+                    {% if application %}
+                        <div class="application-submitted-note">
+                            <strong>You’ve applied</strong>
+                            <span>Current status: {{ application.get_status_display }}</span>
+                            <a href="{% url 'dashboard:student_dashboard' %}">View your applications</a>
+                        </div>
+                    {% elif accepting_applications %}
+                        {% if user.is_authenticated and user.role == "STUDENT" %}
+                            <a class="button button-primary apply-now-button" href="{% url 'applications:apply' internship.pk %}">Apply Now <span aria-hidden="true">→</span></a>
+                        {% elif user.is_authenticated %}
+                            <p class="muted-note">Student accounts can apply to this internship.</p>
+                        {% else %}
+                            <a class="button button-primary apply-now-button" href="{% url 'applications:apply' internship.pk %}">Apply Now <span aria-hidden="true">→</span></a>
+                            <p class="apply-login-note">Log in or register as a student to apply.</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="application-closed-note">This internship is no longer accepting applications.</p>
+                    {% endif %}
+                </aside>
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}

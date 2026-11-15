@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="company-workspace container">
+    <aside class="company-sidebar" aria-label="Recruiter navigation">
+        <div class="company-sidebar-brand">
+            <span class="company-avatar">{{ company.company_name|first|upper }}</span>
+            <span><strong>{{ company.company_name }}</strong><small>Recruiter workspace</small></span>
+        </div>
+        <nav class="company-sidebar-nav">
+            <a href="{% url 'companies:dashboard' %}">Overview</a>
+            <a href="{% url 'companies:internship_list' %}">Internship postings</a>
+            <a href="{% url 'companies:internship_create' %}">Create internship</a>
+            <a href="{% url 'companies:profile' %}">Company profile</a>
+        </nav>
+        <form method="post" action="{% url 'companies:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="company-sidebar-logout">Log out</button>
+        </form>
+    </aside>
+    <div class="company-main">
+        {% block company_content %}{% endblock %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "platform_admin/base.html" %}
+
+{% block title %}{{ page_title }} | InternTrack{% endblock %}
+
+{% block platform_content %}
+<header class="platform-page-heading">
+    <div>
+        <span class="eyebrow eyebrow-blue">Platform management</span>
+        <h1>{{ page_title }}</h1>
+        <p>{{ page_description }}</p>
+    </div>
+</header>
+
+<section class="platform-panel">
+    <form method="get" class="platform-filter-form">
+        <label>
+            <span>Search</span>
+            <input type="search" name="q" value="{{ query }}" placeholder="Search by name, email or role">
+        </label>
+        {% if list_type == "students" or list_type == "companies" %}
+            <label>
+                <span>Account status</span>
+                <select name="active">
+                    <option value="">All accounts</option>
+                    <option value="active"{% if active_filter == "active" %} selected{% endif %}>Active</option>
+                    <option value="inactive"{% if active_filter == "inactive" %} selected{% endif %}>Inactive</option>
+                </select>
+            </label>
+        {% elif list_type == "internships" or list_type == "applications" %}
+            <label>
+                <span>Status</span>
+                <select name="status">
+                    <option value="">All statuses</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}"{% if status_filter == value %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        {% endif %}
+        <div class="platform-filter-actions">
+            <button class="button button-primary button-small" type="submit">Apply filters</button>
+            <a class="button button-outline button-small" href="{% if list_type == 'students' %}{% url 'platform_admin:students' %}{% elif list_type == 'companies' %}{% url 'platform_admin:companies' %}{% elif list_type == 'internships' %}{% url 'platform_admin:internships' %}{% else %}{% url 'platform_admin:applications' %}{% endif %}">Clear</a>
+        </div>
+    </form>
+
+    <div class="platform-table-wrap">
+        <table class="platform-table">
+            {% if list_type == "students" %}
+                <thead><tr><th>Student</th><th>College / department</th><th>Joined</th><th>Account</th></tr></thead>
+                <tbody>
+                    {% for account in page %}
+                        <tr>
+                            <td><strong>{{ account.student_profile.full_name|default:account.get_full_name|default:account.username }}</strong><small>{{ account.email }} · @{{ account.username }}</small></td>
+                            <td>{% if account.student_profile %}{{ account.student_profile.college|default:"College not provided" }}<small>{{ account.student_profile.department|default:"Department not provided" }}</small>{% else %}Profile not created{% endif %}</td>
+                            <td>{{ account.date_joined|date:"M j, Y" }}</td>
+                            <td><span class="platform-account-badge{% if not account.is_active %} is-inactive{% endif %}">{% if account.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="platform-empty-cell">No student accounts match these filters.</td></tr>
+                    {% endfor %}
+                </tbody>
+            {% elif list_type == "companies" %}
+                <thead><tr><th>Company</th><th>Contact</th><th>Location</th><th>Joined</th><th>Account</th></tr></thead>
+                <tbody>
+                    {% for company in page %}
+                        <tr>
+                            <td><strong>{{ company.company_name }}</strong><small>{{ company.user.email }} · @{{ company.user.username }}</small></td>
+                            <td>{{ company.contact_person|default:"Not provided" }}</td>
+                            <td>{{ company.location|default:"Not provided" }}</td>
+                            <td>{{ company.user.date_joined|date:"M j, Y" }}</td>
+                            <td><span class="platform-account-badge{% if not company.user.is_active %} is-inactive{% endif %}">{% if company.user.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="platform-empty-cell">No company profiles match these filters.</td></tr>
+                    {% endfor %}
+                </tbody>
+            {% elif list_type == "internships" %}
+                <thead><tr><th>Internship</th><th>Company</th><th>Deadline</th><th>Status</th><th>Management</th></tr></thead>
+                <tbody>
+                    {% for internship in page %}
+                        <tr>
+                            <td><strong>{{ internship.title }}</strong><small>{{ internship.location }} · {{ internship.application_count }} applications</small></td>
+                            <td>{{ internship.company.company_name }}</td>
+                            <td>{{ internship.deadline|date:"M j, Y" }}</td>
+                            <td><span class="status-badge status-{{ internship.status|lower }}">{{ internship.get_status_display }}</span></td>
+                            <td>
+                                <div class="platform-row-actions">
+                                    {% if perms.internships.change_internship %}
+                                        {% if internship.status == "OPEN" %}
+                                            <form method="post" action="{% url 'platform_admin:internship_status_update' internship.pk 'deactivate' %}">
+                                                {% csrf_token %}<button class="table-link table-link-warning" type="submit">Deactivate</button>
+                                            </form>
+                                        {% else %}
+                                            <form method="post" action="{% url 'platform_admin:internship_status_update' internship.pk 'activate' %}">
+                                                {% csrf_token %}<button class="table-link" type="submit">Activate</button>
+                                            </form>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if perms.internships.delete_internship %}
+                                        <form method="post" action="{% url 'platform_admin:internship_delete' internship.pk %}" onsubmit="return confirm('Delete this internship? This cannot be undone.');">
+                                            {% csrf_token %}<button class="table-link table-link-danger" type="submit">Delete</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="platform-empty-cell">No internships match these filters.</td></tr>
+                    {% endfor %}
+                </tbody>
+            {% else %}
+                <thead><tr><th>Applicant</th><th>Internship</th><th>Company</th><th>Submitted</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for application in page %}
+                        <tr>
+                            <td><strong>{{ application.student.full_name }}</strong><small>{{ application.student.user.email }}</small></td>
+                            <td>{{ application.internship.title }}</td>
+                            <td>{{ application.internship.company.company_name }}</td>
+                            <td>{{ application.applied_date|date:"M j, Y · g:i A" }}</td>
+                            <td><span class="status-badge status-{{ application.status|lower }}">{{ application.get_status_display }}</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="platform-empty-cell">No applications match these filters.</td></tr>
+                    {% endfor %}
+                </tbody>
+            {% endif %}
+        </table>
+    </div>
+
+    {% if page.has_other_pages %}
+        <nav class="platform-pagination" aria-label="Pagination">
+            <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+            <div>
+                {% if page.has_previous %}<a class="button button-outline button-small" href="?q={{ query|urlencode }}{% if active_filter %}&active={{ active_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}&page={{ page.previous_page_number }}">Previous</a>{% endif %}
+                {% if page.has_next %}<a class="button button-outline button-small" href="?q={{ query|urlencode }}{% if active_filter %}&active={{ active_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}&page={{ page.next_page_number }}">Next</a>{% endif %}
+            </div>
+        </nav>
+    {% endif %}
+</section>
+{% endblock %}

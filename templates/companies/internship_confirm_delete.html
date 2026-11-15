@@ -1,0 +1,15 @@
+{% extends "companies/base.html" %}
+
+{% block title %}Delete Internship | InternTrack{% endblock %}
+
+{% block company_content %}
+<div class="company-page-heading"><div><span class="eyebrow eyebrow-blue">Confirm action</span><h1>Delete this internship?</h1></div></div>
+<section class="company-panel company-confirm-card">
+    <p>You are about to delete <strong>{{ internship.title }}</strong>. This action cannot be undone. Postings with applications cannot be deleted; close them instead.</p>
+    <form method="post" class="form-actions">
+        {% csrf_token %}
+        <a class="button button-outline" href="{% url 'companies:internship_list' %}">Keep internship</a>
+        <button type="submit" class="button button-danger">Delete internship</button>
+    </form>
+</section>
+{% endblock %}

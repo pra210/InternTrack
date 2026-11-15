@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+.env
+.env.*
+!.env.example
+staticfiles/
+*.log
+
+# User-uploaded media: never publish private uploads
+media/
+!media/.gitkeep

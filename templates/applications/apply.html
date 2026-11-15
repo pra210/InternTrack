@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Apply · {{ internship.title }} | InternTrack{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container application-form-shell">
+        <a class="text-link" href="{% url 'internships:detail' internship.pk %}">← Back to internship</a>
+        <div class="application-page-heading">
+            <span class="eyebrow eyebrow-blue">Your next step</span>
+            <h1>Apply for {{ internship.title }}</h1>
+            <p>{{ internship.company.company_name }} · {{ internship.location }}</p>
+        </div>
+
+        <div class="application-form-layout">
+            <section class="application-form-card">
+                <h2>Your introduction</h2>
+                <p>Tell the hiring team what interests you about this opportunity. Your application uses your existing InternTrack profile.</p>
+                <form method="post" class="auth-form application-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="form-actions">
+                        <a class="button button-outline" href="{% url 'internships:detail' internship.pk %}">Cancel</a>
+                        <button class="button button-primary" type="submit">Submit application</button>
+                    </div>
+                </form>
+            </section>
+
+            <aside class="application-context-card">
+                <span class="eyebrow eyebrow-blue">Applying as</span>
+                <h2>{{ profile.full_name }}</h2>
+                <p>{{ request.user.email }}</p>
+                {% if profile.resume %}
+                    <div class="resume-ready"><span aria-hidden="true">✓</span> Your resume is on your profile and available to the hiring team.</div>
+                {% else %}
+                    <div class="resume-missing">No resume is on your profile yet. You can still apply and add one from your <a href="{% url 'students:profile' %}">student profile</a>.</div>
+                {% endif %}
+                <a class="text-link" href="{% url 'students:profile' %}">Review your profile <span aria-hidden="true">→</span></a>
+            </aside>
+        </div>
+    </div>
+</section>
+{% endblock %}

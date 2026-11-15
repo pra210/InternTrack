@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator sign in | InternTrack{% endblock %}
+
+{% block content %}
+<section class="auth-section platform-admin-login-section">
+    <div class="auth-card platform-admin-login-card">
+        <span class="eyebrow eyebrow-blue">Secure platform access</span>
+        <h1>Administrator sign in</h1>
+        <p>Use an active Django staff or superuser account to manage InternTrack.</p>
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {{ form.as_p }}
+            <button class="button button-primary" type="submit">Sign in to platform management</button>
+        </form>
+        <a class="auth-meta" href="{% url 'home' %}">Return to InternTrack</a>
+    </div>
+</section>
+{% endblock %}

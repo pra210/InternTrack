@@ -1,0 +1,7 @@
+Django==5.2.18
+django-axes[ipware]==9.0.0
+mysqlclient==2.3.1
+python-dotenv==1.2.4
+Pillow==13.0.0
+whitenoise==6.11.0
+gunicorn==23.0.0; sys_platform != "win32"

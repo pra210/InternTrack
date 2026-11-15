@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Student Login | InternTrack{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container auth-shell">
+        <div class="auth-card">
+            <span class="eyebrow eyebrow-blue">Welcome back</span>
+            <h1>Log in to your student account</h1>
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+                {{ form.as_p }}
+                <button type="submit" class="button button-primary">Log in</button>
+            </form>
+            <p class="auth-meta">
+                New here?
+                <a href="{% url 'accounts:register' %}">Create a student account</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Recruiter Login | InternTrack{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container auth-shell">
+        <div class="auth-card">
+            <span class="eyebrow eyebrow-blue">Recruiter workspace</span>
+            <h1>Log in to your company account</h1>
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="button button-primary">Log in</button>
+            </form>
+            <p class="auth-meta">New to InternTrack? <a href="{% url 'companies:register' %}">Register your company</a></p>
+        </div>
+    </div>
+</section>
+{% endblock %}

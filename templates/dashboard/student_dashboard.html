@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard | InternTrack{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container dashboard-shell">
+        <div class="page-header dashboard-header">
+            <div>
+                <span class="eyebrow eyebrow-blue">Student dashboard</span>
+                <h1>Welcome back, {{ profile.full_name|default:user.username }}.</h1>
+            </div>
+            <div class="dashboard-actions">
+                <a href="{% url 'students:profile' %}" class="button button-small button-primary">Edit profile</a>
+                <form method="post" action="{% url 'accounts:logout' %}">
+                    {% csrf_token %}
+                    <button class="button button-small button-outline" type="submit">Log out</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <article class="stat-card">
+                <span class="stat-label">Total applications</span>
+                <strong>{{ total_applications }}</strong>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Pending</span>
+                <strong>{{ status_counts.PENDING }}</strong>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Shortlisted</span>
+                <strong>{{ status_counts.SHORTLISTED }}</strong>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Interviewing</span>
+                <strong>{{ status_counts.INTERVIEWING }}</strong>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Accepted</span>
+                <strong>{{ status_counts.ACCEPTED }}</strong>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Rejected</span>
+                <strong>{{ status_counts.REJECTED }}</strong>
+            </article>
+        </div>
+
+        <section class="panel notification-panel">
+            <div class="panel-header">
+                <h2>Notifications <span class="notification-count">{{ unread_notification_count }} unread</span></h2>
+            </div>
+            {% if notifications %}
+                <div class="notification-list">
+                    {% for notification in notifications %}
+                        <article class="notification-card{% if not notification.is_read %} is-unread{% endif %}">
+                            <div>
+                                <p>{{ notification.message }}</p>
+                                <small>{{ notification.created_at|date:"M j, Y · g:i A" }}</small>
+                            </div>
+                            {% if not notification.is_read %}
+                                <form method="post" action="{% url 'dashboard:mark_notification_read' notification.pk %}">
+                                    {% csrf_token %}
+                                    <button class="button button-small button-outline" type="submit">Mark as read</button>
+                                </form>
+                            {% else %}
+                                <span class="notification-read-label">Read</span>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-state">You’re all caught up. New application updates will appear here.</p>
+            {% endif %}
+        </section>
+
+        <div class="dashboard-grid">
+            <section class="panel">
+                <div class="panel-header">
+                    <h2>Application tracking</h2>
+                </div>
+                {% if applications %}
+                    <div class="application-tracking-list">
+                        {% for application in applications %}
+                            <article class="application-track-card">
+                                <div>
+                                    <a class="application-role-link" href="{% url 'internships:detail' application.internship.pk %}"><strong>{{ application.internship.title }}</strong></a>
+                                    <small>{{ application.internship.company.company_name }}</small>
+                                    <small>Submitted {{ application.applied_date|date:"M j, Y" }}</small>
+                                </div>
+                                <span class="status-badge status-{{ application.status|lower }}">{{ application.get_status_display }}</span>
+                                <ol class="tracking-timeline" aria-label="Application progress">
+                                    {% for step in application.tracking_steps %}
+                                        <li class="tracking-step{% if step.complete %} is-complete{% endif %}{% if step.current %} is-current{% endif %}">
+                                            <span class="tracking-marker" aria-hidden="true">{{ forloop.counter }}</span>
+                                            <span>{{ step.label }}</span>
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                                {% if application.interview %}
+                                    <div class="student-interview-card">
+                                        <strong>Interview scheduled</strong>
+                                        <span>{{ application.interview.scheduled_at|date:"M j, Y · g:i A" }}</span>
+                                        <span>{{ application.interview.get_mode_display }}</span>
+                                        {% if application.interview.mode == "ONLINE" and application.interview.meeting_link %}
+                                            <a class="table-link" href="{{ application.interview.meeting_link }}" target="_blank" rel="noopener noreferrer">Open meeting link</a>
+                                        {% elif application.interview.location %}
+                                            <span>{{ application.interview.location }}</span>
+                                        {% endif %}
+                                        {% if application.interview.instructions %}
+                                            <p>{{ application.interview.instructions|linebreaksbr }}</p>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-state">You have not applied to any internships yet.</p>
+                {% endif %}
+                {% if application_page.has_other_pages %}
+                    <nav class="application-pagination" aria-label="Application history pages">
+                        <span>Page {{ application_page.number }} of {{ application_page.paginator.num_pages }}</span>
+                        <div>
+                            {% if application_page.has_previous %}<a class="button button-outline button-small" href="?page={{ application_page.previous_page_number }}">Previous</a>{% endif %}
+                            {% if application_page.has_next %}<a class="button button-outline button-small" href="?page={{ application_page.next_page_number }}">Next</a>{% endif %}
+                        </div>
+                    </nav>
+                {% endif %}
+            </section>
+
+            <section class="panel">
+                <div class="panel-header">
+                    <h2>Open opportunities</h2>
+                </div>
+                {% if open_internships %}
+                    <div class="list-stack">
+                        {% for internship in open_internships %}
+                            <div class="list-item">
+                                <div>
+                                    <strong>{{ internship.title }}</strong>
+                                    <small>{{ internship.location }}</small>
+                                </div>
+                                <span>{{ internship.company.company_name }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-state">There are currently no open internships.</p>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}

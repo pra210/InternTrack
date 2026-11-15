@@ -1,0 +1,27 @@
+{% extends "companies/base.html" %}
+
+{% block title %}Company Profile | InternTrack{% endblock %}
+
+{% block company_content %}
+<div class="company-page-heading">
+    <div><span class="eyebrow eyebrow-blue">Company information</span><h1>Your company profile</h1><p>Keep your recruiter details current for candidates.</p></div>
+    <a class="button button-primary" href="{% url 'companies:profile_edit' %}">Edit profile</a>
+</div>
+<section class="company-panel company-profile-card">
+    <div class="company-profile-summary">
+        {% if company.logo %}
+            <img class="company-logo-placeholder" src="{% url 'companies:logo' %}" alt="{{ company.company_name }} logo">
+        {% else %}
+            <div class="company-logo-placeholder">{{ company.company_name|first|upper }}</div>
+        {% endif %}
+        <div><h2>{{ company.company_name }}</h2><p>{{ company.location|default:"Location not provided" }}</p></div>
+    </div>
+    <dl class="company-details">
+        <div><dt>Contact person</dt><dd>{{ company.contact_person|default:"Not provided" }}</dd></div>
+        <div><dt>Official email</dt><dd>{{ company.user.email }}</dd></div>
+        <div><dt>Phone</dt><dd>{{ company.phone|default:"Not provided" }}</dd></div>
+        <div><dt>Website</dt><dd>{% if company.website %}<a href="{{ company.website }}" target="_blank" rel="noopener noreferrer">{{ company.website }}</a>{% else %}Not provided{% endif %}</dd></div>
+        <div class="company-detail-wide"><dt>About the company</dt><dd>{{ company.description|default:"Add a short description of your company."|linebreaksbr }}</dd></div>
+    </dl>
+</section>
+{% endblock %}
